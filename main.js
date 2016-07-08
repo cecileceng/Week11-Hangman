@@ -1,5 +1,6 @@
 var game = require("./game.js");
 var inquirer = require("inquirer");
+exports.letter;
 
 inquirer.prompt([{
 	name: 'letter',

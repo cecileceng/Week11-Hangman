@@ -3,44 +3,39 @@ var wordCons = require("./word.js");
 var letterCons = require("./letter.js");
 var inquirer = require("inquirer");
 var randoWord = game.randoWord;
-var bunchablanks = Array(randoWord.length+1).join('_ ');
 var letterGuessed;
 exports.letter;
 
-function guessLetters(guessesLeft) {
-	var guessesLeft = 10;
-	if (guessesLeft > 0) {
-		inquirer.prompt([{
-		type: 'input',
+var myWord = new wordCons.wordCons(game.randoWord);
+var maxGuesses = 15;
+
+function takeAGuess(){
+	console.log(myWord.toString());
+	if (myWord.guessesMade.length >= maxGuesses){
+		console.log('You have no more guesses. WOMP WOMP.');
+	return; //Game over
+	}
+	inquirer.prompt([{
 		name: 'letter',
-		message: 'Enter a letter:'
-	}]).then(function(letterInput){
-		letterGuessed = letterInput.letter;
-		guessesLeft--;
-		switch(state) {
-			case "correctGuess":
-				if (index >= -1) && guessesLeft > 0 {
-					console.log("Nice job.")//or change the blanks to letters 
+		type: 'text',
+		message: 'Enter a letter:',
+		validate: function(str){
+//			if (str.length != 1) return false;
+			var regEx = new RegExp("^[a-zA-Z\s]{1,1}$");
+			return regEx.test(str);
 				}
-				break;
-			case "incorrectGuess":
-				if (index = -1) && guessesLeft > 0 {
-					console.log(letterGuessed + " is not part of this word. Please try again.") 
+		}]).then(function(letterInput){ //Game control
+				var letter = letterInput.letter; 
+				myWord.findLetter(letter); //Check
+					if(myWord.isComplete()){ 
+					console.log('Yes! It was ' + myWord.toString() + '!');
+					return; //Winner
+					}
+				console.log('-------------------\n'); //If we are here the game did not end. Next guess.
+				console.log('You have ' + (maxGuesses - myWord.guessesMade.length) + ' guesses left.')
+				takeAGuess(); //Recursive call
 				}
-				break;
-			case "noGuessesLeft":
-				if (guessesLeft !<= 0) {
-					console.log("There are no more guesses. The end.")
-				}
-				break;
-			case "gotWordRight":
-				if (guessesLeft <= 0) {
-					console.log("That's right! Nice job!");
-				}
-				break;
-		}
-	console.log(letterGuessed);
-	console.log(randoWord + ', ' + letterGuessed + ': ' + findLetter(randoWord, letterGuessed));
-	console.log(bunchablanks);
-	})
-};
+  );
+}
+
+takeAGuess(); //Start Game
